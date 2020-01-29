@@ -1,5 +1,5 @@
 # browser-script-caching
 
-Go to `chrome://extensions`, select load unpacked, and select the folder for this repository
+Currently implemented from Chrome
 
-Currently implemented for Chrome
+Go to `chrome://extensions`, select developer mode, select load unpacked, and select the folder for this repository
