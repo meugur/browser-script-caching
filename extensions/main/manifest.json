@@ -24,7 +24,7 @@
   "content_scripts": [
     {
       "matches": ["*://*/*"],
-      "js": ["cache.js"],
+      "js": ["injector.js"],
       "run_at": "document_start"
     }
   ]

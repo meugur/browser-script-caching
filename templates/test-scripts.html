@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="author" content="meugur" />
+    <title>Test Scripts</title>
+    <script src="/js/test-scripts-head.js"></script>
+    <script>console.log('test (head) inline');</script>
+</head>
+<body>
+    <h1>The correct order of execution is:</h1>
+    <ol>
+        <li>(head) external</li>
+        <li>(head) inline</li>
+        <li>(pre-body) external</li>
+        <li>(pre-body) inline</li>
+        <li>(body) inline</li>
+        <li>(post-body) inline</li>
+        <li>(post-body) external</li>
+        <li>(remote)</li>
+        <li>remote script loaded</li>
+    </ol>
+    <script src="/js/test-scripts-pre-body.js"></script>
+    <script>console.log('test (pre-body) inline');</script>
+    <script>
+        let inlineScript = document.createElement('script');
+        inlineScript.innerText = 'console.log("test (body) inline");';
+        document.body.appendChild(inlineScript);
+  
+        let remoteScript = document.createElement('script');
+        remoteScript.onload = () => {
+          console.log('remote script loaded');
+        };
+        remoteScript.src = '/js/test-scripts-remote.js';
+        document.body.appendChild(remoteScript);
+    </script>
+    <script>console.log('test (post-body) inline');</script>
+    <script src="/js/test-scripts-post-body.js"></script>
+</body>
+</html>

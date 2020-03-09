@@ -1,26 +1,9 @@
 'use strict';
 
-const PORT_NAME = "script";
 const CACHE_NAME = "cache-v1";
 
 const overwriteScript = (data) => {
     return "// comment added - meugur \n" + data;
-};
-
-const printCache = async () => {
-    console.log("Logging Cache:")
-    let key_list = await window.caches.keys();
-    for (let i = 0; i < key_list.length; ++i) {
-        let key = key_list[i];
-        console.log("Cache name: " + key);
-        let cache = await window.caches.open(key);
-        let keys = await cache.keys();
-        for (let j = 0; j < keys.length; ++j) {
-            console.log("Key: ", keys[j]);
-            let val = await cache.match(keys[j]);
-            console.log("Value: ", val);
-        }
-    }
 };
 
 const getResponseBody = async (response) => {
@@ -33,17 +16,31 @@ const addToCache = async (request, response, data) => {
     let new_response = new Response(
         new Blob([data], {"type": "text/javascript"}),
         {
-        "status": response.status,
-        "statusText": response.statusText,
-        "headers": response.headers,
+            "status": response.status,
+            "statusText": response.statusText,
+            "headers": response.headers,
         }
     );
     let cache = await window.caches.open(CACHE_NAME);
     await cache.put(request, new_response);
 };
 
-const requestHandler = async (details) => {
-    // console.log(details);
+const sendScript = (tabId, instrumentedScript, scriptUrl) => {
+    return new Promise(resolve => {
+        chrome.tabs.sendMessage(
+            tabId,
+            {script: instrumentedScript, url: scriptUrl},
+            response => {
+                console.log("response received")
+                resolve();
+            }
+        );
+    });
+}
+
+const requestHandlerOld = async (details) => {
+    console.log("received script " + details.url);
+    
     const request = new Request(
         details.url, 
         {
@@ -51,8 +48,6 @@ const requestHandler = async (details) => {
             method: 'GET',
         }
     );
-    // await printCache();
-
     // Request is not related to a tab
     if (details.tabId === -1) {
         let response = await window.caches.match(details.url); 
@@ -64,9 +59,6 @@ const requestHandler = async (details) => {
         }
         return {'cancel': true};
     }
-    // Connect to tab
-    let port = chrome.tabs.connect(details.tabId, {name: PORT_NAME});
-
     let instrumented_script = "";
 
     // Get script from cache, else fetch and add to cache
@@ -80,10 +72,28 @@ const requestHandler = async (details) => {
     } else {
         instrumented_script = await getResponseBody(response);
     }
-    // Send script to tab
-    port.postMessage({script: instrumented_script, url: details.url});
+    console.log("sending " + details.url);
+
+    await sendScript(details.tabId, instrumented_script, details.url);
+
+    console.log("sent " + details.url);
 
     return {'cancel': true};
+};
+
+// const requestHandlerProxy = (details) => {
+//     console.log(details);
+//     if (details.tabId === -1) {
+//         return;
+//     }
+//     console.log('http://localhost:8080/?url=' + details.url);
+//     return { redirectUrl: 'http://localhost:8080/?url=' + details.url };
+// };
+
+
+const requestHandler = (details) => {
+    console.log("received script " + details.url);
+    return {'cancel': false};
 };
 
 chrome.webRequest.onBeforeRequest.addListener(
@@ -93,4 +103,11 @@ chrome.webRequest.onBeforeRequest.addListener(
         types: ['script']
     },
     ['blocking'],
+);
+
+chrome.runtime.onMessageExternal.addListener(
+    (request, sender, sendResponse) => {
+        console.log("request: ", request);
+        console.log("sender: ", sender);
+    }
 );

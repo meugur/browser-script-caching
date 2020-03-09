@@ -1,0 +1,28 @@
+{
+  "manifest_version": 2,
+  "name": "Testing Client-side Computation Caching",
+  "version": "1.0",
+  "description": "Testing",
+  "permissions": [
+    "storage",
+    "webRequest",
+    "webRequestBlocking",
+    "http://localhost:5000/*"
+  ],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": true
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://localhost:5000/test"],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["http://localhost:5000/inline"],
+      "js": ["inline.js"],
+      "run_at": "document_start"
+    }
+  ]
+}

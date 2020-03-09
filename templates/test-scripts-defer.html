@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="author" content="meugur" />
+    <title>Test Scripts</title>
+    <script src="/js/test-scripts-head.js" defer></script>
+    <script defer>console.log('test (head) inline');</script>
+</head>
+<body>
+    <h1>The correct order of execution is:</h1>
+    <ol>
+        <li>(head) inline</li>
+        <li>(pre-body) inline</li>
+        <li>(body) inline</li>
+        <li>(post-body) inline</li>
+        <li>(head) external</li>
+        <li>(pre-body) external</li>
+        <li>(body) external</li>
+        <li>(post-body) external</li>
+    </ol>
+    <script src="/js/test-scripts-pre-body.js" defer></script>
+    <script defer>console.log('test (pre-body) inline');</script>
+    <script src="/js/test-scripts-body.js" defer></script>
+    <script defer>console.log('test (body) inline');</script>
+    <script src="/js/test-scripts-post-body.js" defer></script>
+    <script defer>console.log('test (post-body) inline');</script>
+</body>
+</html>

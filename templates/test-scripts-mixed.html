@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="author" content="meugur" />
+    <title>Test Scripts</title>
+    <script src="/js/test-scripts-head.js">
+        console.log('test (head) inline');
+    </script>
+</head>
+<body>
+    <h1>The correct order of execution is:</h1>
+    <ol>
+        <li>(head) external</li>
+        <li>(body) external</li>
+    </ol>
+    <script src="/js/test-scripts-body.js">
+        console.log('test (body) inline');
+    </script>
+</body>
+</html>
