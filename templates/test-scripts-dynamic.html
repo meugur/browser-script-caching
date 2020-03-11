@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="author" content="meugur" />
+    <title>Test Scripts</title>
+    <script src="/js/test-scripts-head.js"></script>
+    <script>
+        let inlineScript = document.createElement('script');
+        inlineScript.innerText = 'console.log("test (head) appendChild");';
+        document.head.appendChild(inlineScript);
+
+        inlineScriptNew = document.createElement('script');
+        inlineScriptNew.innerText = 'console.log("test (head) insertBefore");';
+        document.head.insertBefore(inlineScriptNew, inlineScript);
+
+        inlineScriptReplace = document.createElement('script');
+        inlineScriptReplace.innerText = 'console.log("test (head) replaceChild");';
+        document.head.replaceChild(inlineScriptReplace, inlineScript);
+    </script>
+    <script>console.log('test (head) inline');</script>
+</head>
+<body>
+    <h1>The correct order of execution is:</h1>
+    <ol>
+        <li>(head) external</li>
+        <li>(head) appendChild</li>
+        <li>(head) insertBefore</li>
+        <li>(head) replaceChild</li>
+        <li>(head) inline</li>
+        <li>(post-body) external</li>
+    </ol>
+    <h1>The following must come after:</h1>
+    <h3>(1, 2) must be in order relative to each other</h1>
+    <h3>(3, 4) must be in order relative to each other</h1>
+    <h3>(3, 4, 1, 2) is a valid execution</h1>
+    <ol>
+        <li>(pre-body) external</li>
+        <li>(body) external</li>
+        <li>(remote)</li>
+        <li>remote script loaded</li>
+    </ol>
+    <script src="/js/test-scripts-pre-body.js" defer></script>
+    <script>
+        let remoteScript= document.createElement('script');
+        remoteScript.onload = () => {
+            console.log('remote script loaded');
+        };
+        remoteScript.defer = true;
+        remoteScript.src = '/js/test-scripts-remote.js';
+        document.body.appendChild(remoteScript);
+    </script>
+    <script src="/js/test-scripts-body.js" defer></script>
+    <script src="/js/test-scripts-post-body.js"></script>
+</body>
+</html>

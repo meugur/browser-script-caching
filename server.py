@@ -23,6 +23,10 @@ def test_scripts_mixed():
 def test_scripts_defer():
     return render_template('test-scripts-defer.html')
 
+@app.route('/test-scripts-dynamic')
+def test_scripts_dynamic():
+    return render_template('test-scripts-dynamic.html')
+
 @app.route('/js/<path:path>')
 def serve_js(path):
     return send_from_directory('js', path)
