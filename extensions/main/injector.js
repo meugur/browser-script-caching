@@ -4,7 +4,7 @@ const EXTENSION_ID = 'honlahhbhobbakjcjdnkaloalofnpaje';
 
 const CACHING_ENABLED = false;
 const overwriteScriptText = (text) => {
-    return "// comment added - meugur \nconsole.log('script rewritten');" + text;
+    return "// comment added - meugur \n" + text;
 };
 
 const main = () => {
@@ -12,7 +12,22 @@ const main = () => {
     const CACHING_ENABLED = false;
     const PROCESSED_SCRIPT_ATTR = 'meugur';
     const overwriteScriptText = (text) => {
-        return "// comment added - meugur \nconsole.log('script rewritten');" + text;
+        return "// comment added - meugur \n" + text;
+    };
+    localStorage["NUM_INLINE_SYNC_SCRIPTS"] = 0;
+    localStorage["NUM_EXTERNAL_SYNC_SCRIPTS"] = 0;
+    localStorage["NUM_EXTERNAL_ASYNC_SCRIPTS"] = 0;
+    localStorage["TOTAL_NUM_SCRIPTS"] = 0;
+    localStorage["NUM_INLINE_SYNC_SCRIPTS_SIZE"] = 0;
+    localStorage["NUM_EXTERNAL_SYNC_SCRIPTS_SIZE"] = 0;
+    localStorage["NUM_EXTERNAL_ASYNC_SCRIPTS_SIZE"] = 0;
+    localStorage["TOTAL_NUM_SCRIPTS_SIZE"] = 0;
+
+    //
+    // https://stackoverflow.com/questions/2219526/how-many-bytes-in-a-javascript-string
+    //
+    const byteCount = (s) => {
+        return encodeURI(s).split(/%..|./).length - 1;
     };
 
     // git://github.com/darkskyapp/string-hash.git
@@ -52,7 +67,11 @@ const main = () => {
     };
 
     const handleInlineScript = (script) => {
-        // console.log('process inline sync script: ', script);
+        localStorage["NUM_INLINE_SYNC_SCRIPTS"]++;
+        localStorage["TOTAL_NUM_SCRIPTS"]++;
+        let scriptSize = byteCount(script.text);
+        localStorage["NUM_INLINE_SYNC_SCRIPTS_SIZE"] = Number(localStorage["NUM_INLINE_SYNC_SCRIPTS_SIZE"]) + scriptSize;
+        localStorage["TOTAL_NUM_SCRIPTS_SIZE"] = Number(localStorage["TOTAL_NUM_SCRIPTS_SIZE"]) + scriptSize;
 
         if (CACHING_ENABLED) {
             let scriptText = script.text || script.innerText;
@@ -75,8 +94,6 @@ const main = () => {
     };
 
     const handleExternalSyncScript = (script) => {
-        // console.log('process external sync script: ', script);
-
         if (CACHING_ENABLED) {
             let newText = fetchScriptTextFromCache(script.src);
             if (newText) {
@@ -97,6 +114,12 @@ const main = () => {
         xhr.onload = (e) => {
             if (xhr.status != 200) return;
 
+            localStorage["NUM_EXTERNAL_SYNC_SCRIPTS"]++;
+            localStorage["TOTAL_NUM_SCRIPTS"]++;
+            let scriptSize = byteCount(xhr.responseText);
+            localStorage["NUM_EXTERNAL_SYNC_SCRIPTS_SIZE"] = Number(localStorage["NUM_EXTERNAL_SYNC_SCRIPTS_SIZE"]) + scriptSize;
+            localStorage["TOTAL_NUM_SCRIPTS_SIZE"] = Number(localStorage["TOTAL_NUM_SCRIPTS_SIZE"]) + scriptSize;
+    
             // Removing src attribute on defer scripts prevents defer functionality
             if (!script.defer) {
                 script.src = null;
@@ -119,7 +142,6 @@ const main = () => {
     };
 
     const handleExternalAsyncScript = (script) => {
-        //console.log('process external async script: ', script);
         let newScript = document.createElement('script');
         newScript[PROCESSED_SCRIPT_ATTR] = true;
 
@@ -130,6 +152,13 @@ const main = () => {
             // };
             xhr.onload = (e) => {
                 if (xhr.status != 200) return;
+
+                localStorage["NUM_EXTERNAL_ASYNC_SCRIPTS"]++;
+                localStorage["TOTAL_NUM_SCRIPTS"]++;
+                let scriptSize = byteCount(xhr.responseText);
+                localStorage["NUM_EXTERNAL_ASYNC_SCRIPTS_SIZE"] = Number(localStorage["NUM_EXTERNAL_ASYNC_SCRIPTS_SIZE"]) + scriptSize;
+                localStorage["TOTAL_NUM_SCRIPTS_SIZE"] = Number(localStorage["TOTAL_NUM_SCRIPTS_SIZE"]) + scriptSize;
+
                 script.src = null;
                 script.removeAttribute('src');
                 script.text = overwriteScriptText(xhr.responseText);
@@ -195,21 +224,18 @@ const main = () => {
     // Overload functions that dynamically add scripts
     Node.prototype.appendChild = function appendChild(newChild) {
         if (newChild instanceof HTMLScriptElement && !newChild[PROCESSED_SCRIPT_ATTR]) {
-            // console.log('appendChild of a new script (src: ' + newChild.src + ')');
             return oldAppendChild.call(this, processScript(newChild, true));
         }
         return oldAppendChild.apply(this, arguments);
     }
     Node.prototype.insertBefore = function insertBefore(newChild, refChild) {
         if (newChild instanceof HTMLScriptElement && !newChild[PROCESSED_SCRIPT_ATTR]) {
-            // console.log('insertBefore of a new script (src: ' + newChild.src + ')');
             return oldInsertBefore.call(this, processScript(newChild, true), refChild);
         }
         return oldInsertBefore.apply(this, arguments);
     }
     Node.prototype.replaceChild = function replaceChild(newChild, oldChild) {
         if (newChild instanceof HTMLScriptElement && !newChild[PROCESSED_SCRIPT_ATTR]) {
-            // console.log('replaceChild of a new script (src: ' + newChild.src + ')');
             return oldReplaceChild.call(this, processScript(newChild, true), oldChild);
         }
         return oldReplaceChild.apply(this, arguments);

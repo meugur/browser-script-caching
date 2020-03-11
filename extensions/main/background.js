@@ -3,7 +3,7 @@
 const CACHE_NAME = "cache-v1";
 
 const overwriteScriptText = (text) => {
-    return "// comment added - meugur \nconsole.log('script rewritten');" + text;
+    return "// comment added - meugur \n" + text;
 };
 
 chrome.runtime.onMessage.addListener(
