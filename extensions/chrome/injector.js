@@ -1,27 +1,25 @@
 'use strict';
 
 const EXTENSION_ID = 'honlahhbhobbakjcjdnkaloalofnpaje';
-
 const CACHING_ENABLED = false;
-const overwriteScriptText = (text) => {
-    return "// comment added - meugur \n" + text;
-};
 
 const main = () => {
     const SCRIPTS = {};
     const CACHING_ENABLED = false;
     const PROCESSED_SCRIPT_ATTR = 'meugur';
+
+    // localStorage["NUM_INLINE_SYNC_SCRIPTS"] = 0;
+    // localStorage["NUM_EXTERNAL_SYNC_SCRIPTS"] = 0;
+    // localStorage["NUM_EXTERNAL_ASYNC_SCRIPTS"] = 0;
+    // localStorage["TOTAL_NUM_SCRIPTS"] = 0;
+    // localStorage["NUM_INLINE_SYNC_SCRIPTS_SIZE"] = 0;
+    // localStorage["NUM_EXTERNAL_SYNC_SCRIPTS_SIZE"] = 0;
+    // localStorage["NUM_EXTERNAL_ASYNC_SCRIPTS_SIZE"] = 0;
+    // localStorage["TOTAL_NUM_SCRIPTS_SIZE"] = 0;
+
     const overwriteScriptText = (text) => {
-        return "// comment added - meugur \n" + text;
-    };
-    localStorage["NUM_INLINE_SYNC_SCRIPTS"] = 0;
-    localStorage["NUM_EXTERNAL_SYNC_SCRIPTS"] = 0;
-    localStorage["NUM_EXTERNAL_ASYNC_SCRIPTS"] = 0;
-    localStorage["TOTAL_NUM_SCRIPTS"] = 0;
-    localStorage["NUM_INLINE_SYNC_SCRIPTS_SIZE"] = 0;
-    localStorage["NUM_EXTERNAL_SYNC_SCRIPTS_SIZE"] = 0;
-    localStorage["NUM_EXTERNAL_ASYNC_SCRIPTS_SIZE"] = 0;
-    localStorage["TOTAL_NUM_SCRIPTS_SIZE"] = 0;
+        return `/* comment added - meugur */\n${text}`;
+    };    
 
     //
     // https://stackoverflow.com/questions/2219526/how-many-bytes-in-a-javascript-string
@@ -52,30 +50,30 @@ const main = () => {
         return result;
      }
 
-    const fetchScriptTextFromCache = (hashableString) => {
+    const fetchTextFromCache = (hashableString, cacheStorage) => {
         let hash = stringHash(hashableString);
-        let newText = sessionStorage.getItem(hash);
+        let newText = cacheStorage.getItem(hash);
         if (newText === null) {
             try {
-                newText = overwriteScriptText(scriptText);
-                sessionStorage.setItem(hash, newText);
+                newText = overwriteScriptText(hashableString);
+                cacheStorage.setItem(hash, newText);
             } catch (e) {
-                // console.log("Session storage over quota")
+                // console.log("storage over quota")
             }
         }
         return newText;
     };
 
     const handleInlineScript = (script) => {
-        localStorage["NUM_INLINE_SYNC_SCRIPTS"]++;
-        localStorage["TOTAL_NUM_SCRIPTS"]++;
-        let scriptSize = byteCount(script.text);
-        localStorage["NUM_INLINE_SYNC_SCRIPTS_SIZE"] = Number(localStorage["NUM_INLINE_SYNC_SCRIPTS_SIZE"]) + scriptSize;
-        localStorage["TOTAL_NUM_SCRIPTS_SIZE"] = Number(localStorage["TOTAL_NUM_SCRIPTS_SIZE"]) + scriptSize;
+        // localStorage["NUM_INLINE_SYNC_SCRIPTS"]++;
+        // localStorage["TOTAL_NUM_SCRIPTS"]++;
+        // let scriptSize = byteCount(script.text);
+        // localStorage["NUM_INLINE_SYNC_SCRIPTS_SIZE"] = Number(localStorage["NUM_INLINE_SYNC_SCRIPTS_SIZE"]) + scriptSize;
+        // localStorage["TOTAL_NUM_SCRIPTS_SIZE"] = Number(localStorage["TOTAL_NUM_SCRIPTS_SIZE"]) + scriptSize;
 
         if (CACHING_ENABLED) {
             let scriptText = script.text || script.innerText;
-            let newText = fetchScriptTextFromCache(scriptText);
+            let newText = fetchTextFromCache(scriptText, localStorage);
             if (newText) {
                 if (script.text) {
                     script.text = newText;
@@ -95,7 +93,7 @@ const main = () => {
 
     const handleExternalSyncScript = (script) => {
         if (CACHING_ENABLED) {
-            let newText = fetchScriptTextFromCache(script.src);
+            let newText = fetchTextFromCache(script.src, localStorage);
             if (newText) {
                 if (!script.defer) {
                     script.src = null;
@@ -114,11 +112,11 @@ const main = () => {
         xhr.onload = (e) => {
             if (xhr.status != 200) return;
 
-            localStorage["NUM_EXTERNAL_SYNC_SCRIPTS"]++;
-            localStorage["TOTAL_NUM_SCRIPTS"]++;
-            let scriptSize = byteCount(xhr.responseText);
-            localStorage["NUM_EXTERNAL_SYNC_SCRIPTS_SIZE"] = Number(localStorage["NUM_EXTERNAL_SYNC_SCRIPTS_SIZE"]) + scriptSize;
-            localStorage["TOTAL_NUM_SCRIPTS_SIZE"] = Number(localStorage["TOTAL_NUM_SCRIPTS_SIZE"]) + scriptSize;
+            // localStorage["NUM_EXTERNAL_SYNC_SCRIPTS"]++;
+            // localStorage["TOTAL_NUM_SCRIPTS"]++;
+            // let scriptSize = byteCount(xhr.responseText);
+            // localStorage["NUM_EXTERNAL_SYNC_SCRIPTS_SIZE"] = Number(localStorage["NUM_EXTERNAL_SYNC_SCRIPTS_SIZE"]) + scriptSize;
+            // localStorage["TOTAL_NUM_SCRIPTS_SIZE"] = Number(localStorage["TOTAL_NUM_SCRIPTS_SIZE"]) + scriptSize;
     
             // Removing src attribute on defer scripts prevents defer functionality
             if (!script.defer) {
@@ -153,11 +151,11 @@ const main = () => {
             xhr.onload = (e) => {
                 if (xhr.status != 200) return;
 
-                localStorage["NUM_EXTERNAL_ASYNC_SCRIPTS"]++;
-                localStorage["TOTAL_NUM_SCRIPTS"]++;
-                let scriptSize = byteCount(xhr.responseText);
-                localStorage["NUM_EXTERNAL_ASYNC_SCRIPTS_SIZE"] = Number(localStorage["NUM_EXTERNAL_ASYNC_SCRIPTS_SIZE"]) + scriptSize;
-                localStorage["TOTAL_NUM_SCRIPTS_SIZE"] = Number(localStorage["TOTAL_NUM_SCRIPTS_SIZE"]) + scriptSize;
+                // localStorage["NUM_EXTERNAL_ASYNC_SCRIPTS"]++;
+                // localStorage["TOTAL_NUM_SCRIPTS"]++;
+                // let scriptSize = byteCount(xhr.responseText);
+                // localStorage["NUM_EXTERNAL_ASYNC_SCRIPTS_SIZE"] = Number(localStorage["NUM_EXTERNAL_ASYNC_SCRIPTS_SIZE"]) + scriptSize;
+                // localStorage["TOTAL_NUM_SCRIPTS_SIZE"] = Number(localStorage["TOTAL_NUM_SCRIPTS_SIZE"]) + scriptSize;
 
                 script.src = null;
                 script.removeAttribute('src');

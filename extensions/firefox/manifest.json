@@ -2,12 +2,13 @@
   "manifest_version": 2,
   "name": "Testing Client-side Computation Caching",
   "version": "1.0",
-  "description": "Testing",
+  "description": "Enables rewriting of client-side scripts on page load",
   "permissions": [
     "storage",
     "webRequest",
     "webRequestBlocking",
-    "http://localhost:5000/*"
+    "unlimitedStorage",
+    "*://*/*"
   ],
   "background": {
     "scripts": ["background.js"],
@@ -15,13 +16,8 @@
   },
   "content_scripts": [
     {
-      "matches": ["http://localhost:5000/test"],
-      "js": ["content.js"],
-      "run_at": "document_start"
-    },
-    {
-      "matches": ["http://localhost:5000/inline"],
-      "js": ["inline.js"],
+      "matches": ["*://*/*"],
+      "js": ["injector.js"],
       "run_at": "document_start"
     }
   ]

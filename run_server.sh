@@ -2,7 +2,5 @@
 
 set -e
 
-export FLASK_APP=server.py
-export FLASK_ENV=development
-
-python -m flask run
+docker build -t static_server .
+docker run -v /home/meugur/projects/eecs/thesis/:/usr/src/ -p 5000:5000 -d --network host static_server
