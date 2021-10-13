@@ -17,7 +17,7 @@ nytimes.com
 myshopify.com
 live.com
 chaturbate.com
-microsoftonline.com
+office.com
 microsoft.com
 force.com
 instagram.com
@@ -32,7 +32,7 @@ salesforce.com
 patch.com
 chase.com
 tmall.com
-abode.com
+adobe.com
 hulu.com
 cdc.gov
 washingtonpost.com

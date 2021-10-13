@@ -2,7 +2,7 @@
 
 browser.storage.local.clear();
 
-const CACHING_ENABLED = true;
+const CACHING_ENABLED = false;
 
 const overwriteScriptText = (text) => {
     return `/* comment added - meugur */\n${text}`;
